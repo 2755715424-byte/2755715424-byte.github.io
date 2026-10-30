@@ -2,6 +2,8 @@
 
 一个不需要构建步骤的单页个人网站：手写 HTML / CSS / 少量 JavaScript，直接托管到 GitHub Pages。
 
+线上地址：<https://2755715424-byte.github.io/>
+
 ## 本地预览
 
 在本目录执行：
