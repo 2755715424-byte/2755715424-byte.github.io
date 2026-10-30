@@ -1,0 +1,1393 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>心屿 PsyCare · 融合数据脱敏的高校心理健康自助平台</title>
+  <meta name="description" content="心屿 PsyCare 是一个面向高校学生的心理健康自助平台：匿名测评、在线咨询、匿名树洞、资源推荐与群体看板，隐私保护贯穿全链路；AI 助手先脱敏、再检索、后生成。">
+  <meta name="theme-color" content="#f3efe4">
+  <meta property="og:title" content="心屿 PsyCare · 高校心理健康自助平台">
+  <meta property="og:description" content="把心事，安放在一个安全的地方。10 套量表、先脱敏的 AI 助手与 k-匿名看板。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2317251f'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-size='34' font-family='STSong,SimSun,serif' fill='%23f3efe4'%3E%E5%B1%BF%3C/text%3E%3C/svg%3E">
+  <script>document.documentElement.classList.add('js')</script>
+  <style>
+    :root {
+      --paper: #f3efe4;
+      --paper-deep: #e9e2d2;
+      --card: #fbf9f3;
+      --ink: #17251f;
+      --muted: #68736c;
+      --line: rgba(23, 37, 31, .14);
+      --line-strong: rgba(23, 37, 31, .26);
+      --teal: #2f6f64;
+      --teal-deep: #17332b;
+      --teal-soft: #dcebe4;
+      --coral: #c7684a;
+      --serif: "Songti SC", "Noto Serif SC", "Source Han Serif SC", STSong, SimSun, serif;
+      --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 6% -4%, rgba(47, 111, 100, .13), transparent 46%),
+        radial-gradient(ellipse at 98% 10%, rgba(199, 104, 74, .09), transparent 40%),
+        var(--paper);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: var(--teal); color: var(--card); }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    h1, h2, h3, h4, p, ul, dl, dd, figure { margin: 0; }
+    ul { padding: 0; list-style: none; }
+
+    .skip {
+      position: fixed;
+      left: 16px;
+      top: -60px;
+      z-index: 100;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--card);
+      transition: top .2s ease;
+    }
+    .skip:focus { top: 16px; }
+
+    .wrap {
+      width: min(var(--max), calc(100% - 48px));
+      margin: 0 auto;
+    }
+
+    .mono {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    /* ---------- header ---------- */
+
+    .site-head {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 1px solid var(--line);
+      background: rgba(243, 239, 228, .84);
+      backdrop-filter: blur(18px);
+      transition: box-shadow .25s ease;
+    }
+    .site-head.is-scrolled { box-shadow: 0 12px 30px -26px rgba(23, 37, 31, .6); }
+
+    .head-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 650;
+      letter-spacing: -.02em;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--serif);
+      font-size: 19px;
+      line-height: 1;
+    }
+
+    .brand small {
+      display: block;
+      margin-top: -3px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .head-nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-left: auto;
+      font-size: 14px;
+    }
+
+    .head-nav a {
+      position: relative;
+      color: var(--muted);
+      white-space: nowrap;
+      transition: color .2s ease;
+    }
+    .head-nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      width: 0;
+      height: 1px;
+      background: var(--teal);
+      transition: width .25s ease;
+    }
+    .head-nav a:hover { color: var(--ink); }
+    .head-nav a:hover::after { width: 100%; }
+
+    .head-actions { display: flex; align-items: center; gap: 10px; }
+
+    /* ---------- buttons ---------- */
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 48px;
+      padding: 0 22px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--card);
+      font-size: 14px;
+      white-space: nowrap;
+      transition: transform .2s ease, background .2s ease, color .2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn--ghost {
+      background: transparent;
+      border-color: var(--line-strong);
+      color: var(--ink);
+    }
+    .btn--ghost:hover { background: rgba(23, 37, 31, .05); }
+    .btn--sm { min-height: 38px; padding: 0 16px; font-size: 13px; }
+
+    /* ---------- hero ---------- */
+
+    .hero { padding: 76px 0 52px; }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(0, .98fr);
+      gap: 52px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      color: var(--teal);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 26px;
+      height: 1px;
+      background: currentColor;
+    }
+
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(40px, 5.6vw, 78px);
+      font-weight: 500;
+      line-height: 1.06;
+      letter-spacing: -.05em;
+    }
+    .hero h1 em { color: var(--teal); font-style: normal; }
+
+    .hero-lead {
+      max-width: 560px;
+      margin-top: 26px;
+      color: var(--muted);
+      font-size: 16.5px;
+      line-height: 1.95;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .hero-note {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .hero-note::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--coral);
+      flex: none;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 18px;
+      margin-top: 30px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .hero-visual { position: relative; }
+
+    .browser {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--card);
+      overflow: hidden;
+      box-shadow: 0 46px 90px -56px rgba(23, 37, 31, .55);
+      transform: rotate(-.7deg);
+    }
+
+    .browser-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 34px;
+      padding: 0 13px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, .55);
+    }
+    .browser-bar i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--line-strong);
+    }
+    .browser-bar i:first-child { background: rgba(199, 104, 74, .55); }
+    .browser-bar span {
+      margin-left: 8px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .06em;
+    }
+
+    .browser img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3.2;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .hero-badge {
+      position: absolute;
+      left: -10px;
+      bottom: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--card);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .06em;
+      box-shadow: 0 18px 36px -26px rgba(23, 37, 31, .5);
+    }
+    .hero-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+
+    /* ---------- stats strip ---------- */
+
+    .strip {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: rgba(251, 249, 243, .55);
+    }
+
+    .strip-inner {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 26px 0;
+    }
+    .stat + .stat {
+      padding-left: 28px;
+      border-left: 1px solid var(--line);
+    }
+    .stat b {
+      font-family: var(--serif);
+      font-size: 38px;
+      font-weight: 500;
+      line-height: 1.05;
+      letter-spacing: -.04em;
+    }
+    .stat span { color: var(--muted); font-size: 12.5px; }
+
+    /* ---------- sections ---------- */
+
+    .section { padding: 96px 0 0; }
+
+    section[id], .band[id] { scroll-margin-top: 92px; }
+
+    .sec-head {
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+      gap: 32px;
+      align-items: end;
+      margin-bottom: 38px;
+    }
+
+    .sec-head h2 {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: -.04em;
+    }
+
+    .sec-head h2 small {
+      display: block;
+      margin-bottom: 14px;
+      color: var(--teal);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .sec-lead {
+      max-width: 640px;
+      color: var(--muted);
+      font-size: 15.5px;
+      line-height: 1.9;
+    }
+
+    /* ---------- features ---------- */
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .feature {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--card);
+    }
+    .feature--wide { grid-column: span 2; }
+    .feature--full {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      align-items: center;
+      gap: 28px;
+    }
+    .feature--full .feature-body { flex: 1 1 auto; }
+    .feature--full .feature-aside { flex: 0 0 auto; }
+
+    .feature-index {
+      color: var(--teal);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .12em;
+    }
+
+    .feature h3 {
+      font-family: var(--serif);
+      font-size: 23px;
+      font-weight: 500;
+      line-height: 1.25;
+      letter-spacing: -.02em;
+    }
+
+    .feature p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.85;
+    }
+
+    .feature ul { display: grid; gap: 8px; margin-top: 2px; }
+    .feature li {
+      position: relative;
+      padding-left: 16px;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.75;
+    }
+    .feature li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 9px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: auto;
+      padding-top: 4px;
+    }
+    .flow span {
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .06em;
+    }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(47, 111, 100, .09);
+      color: var(--teal-deep);
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .04em;
+    }
+
+    /* ---------- views ---------- */
+
+    .gal {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .shot {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--card);
+      overflow: hidden;
+      box-shadow: 0 26px 50px -40px rgba(23, 37, 31, .45);
+    }
+    .shot img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    figcaption {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 12px;
+    }
+    figcaption b { font-size: 14px; font-weight: 600; }
+    figcaption span { color: var(--muted); font-size: 13px; line-height: 1.7; }
+
+    /* ---------- scales ---------- */
+
+    .scales {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 1px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--line);
+      overflow: hidden;
+    }
+
+    .scale {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-height: 152px;
+      padding: 22px 18px;
+      background: var(--card);
+    }
+    .scale b {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -.01em;
+    }
+    .scale .scale-topic { color: var(--teal); font-size: 12.5px; }
+    .scale em {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-style: normal;
+      letter-spacing: .08em;
+    }
+    .scale p {
+      margin-top: auto;
+      padding-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .callout {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      padding: 16px 20px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 16px;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.8;
+    }
+    .callout b { color: var(--ink); font-weight: 600; }
+
+    /* ---------- privacy band ---------- */
+
+    .band {
+      margin-top: 96px;
+      padding: 84px 0;
+      background: var(--teal-deep);
+      color: #f2eee2;
+    }
+    .band .sec-head h2 { color: #f7f3e8; }
+    .band .sec-head h2 small { color: #8fb7a9; }
+    .band .sec-lead { color: rgba(242, 238, 226, .72); }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .step {
+      padding-top: 18px;
+      border-top: 1px solid rgba(242, 238, 226, .22);
+    }
+    .step em {
+      color: #8fb7a9;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-style: normal;
+      letter-spacing: .1em;
+    }
+    .step h3 {
+      margin: 10px 0 8px;
+      font-family: var(--serif);
+      font-size: 21px;
+      font-weight: 500;
+      letter-spacing: -.01em;
+    }
+    .step p { color: rgba(242, 238, 226, .7); font-size: 13.5px; line-height: 1.8; }
+
+    .band-note {
+      margin-top: 34px;
+      padding-top: 20px;
+      border-top: 1px dashed rgba(242, 238, 226, .25);
+      color: rgba(242, 238, 226, .62);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    /* ---------- architecture ---------- */
+
+    .arch {
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(0, .98fr);
+      gap: 46px;
+      align-items: start;
+    }
+
+    .layer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 15px 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+    }
+    .layer b { display: block; font-size: 14px; font-weight: 600; }
+    .layer small { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .layer .mono { flex: none; color: var(--teal); white-space: nowrap; }
+    .layer--main {
+      border-color: rgba(47, 111, 100, .34);
+      background: linear-gradient(120deg, rgba(47, 111, 100, .09), transparent 72%), var(--card);
+    }
+    .layer--dark {
+      border-color: transparent;
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .layer--dark small { color: rgba(243, 239, 228, .68); }
+    .layer--dark .mono { color: #9fc4b6; }
+
+    .arrow {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 9px 0 9px 18px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .arrow span { padding-left: 10px; border-left: 1px dashed var(--line-strong); }
+
+    .arch-notes { display: grid; gap: 16px; }
+    .arch-note { padding-left: 16px; border-left: 2px solid rgba(47, 111, 100, .3); }
+    .arch-note b { display: block; margin-bottom: 3px; font-size: 14px; }
+    .arch-note p { color: var(--muted); font-size: 13.5px; line-height: 1.8; }
+
+    .events { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .events code {
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(47, 111, 100, .1);
+      color: var(--teal-deep);
+      font-family: var(--mono);
+      font-size: 10.5px;
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 44px;
+    }
+
+    .note-card {
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, .4);
+    }
+    .note-card em {
+      color: rgba(47, 111, 100, .45);
+      font-family: var(--serif);
+      font-size: 30px;
+      font-style: normal;
+      line-height: 1;
+    }
+    .note-card h3 {
+      margin: 10px 0 8px;
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 500;
+    }
+    .note-card p { color: var(--muted); font-size: 13.5px; line-height: 1.8; }
+
+    /* ---------- run ---------- */
+
+    .run {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+      gap: 34px;
+      align-items: start;
+    }
+
+    .code {
+      border-radius: 18px;
+      background: #16241f;
+      color: #e9e6d8;
+      padding: 24px;
+      overflow-x: auto;
+      box-shadow: 0 34px 64px -44px rgba(23, 37, 31, .7);
+    }
+    .code pre { margin: 0; }
+    .code code {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.95;
+      white-space: pre;
+    }
+    .code .c { color: #7f9a8f; }
+
+    .run-side { display: grid; gap: 14px; }
+    .run-item {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed var(--line);
+    }
+    .run-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .run-item dt {
+      color: var(--teal);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .run-item dd { color: var(--muted); font-size: 13.5px; line-height: 1.8; }
+
+    /* ---------- author ---------- */
+
+    .author {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr) auto;
+      gap: 26px;
+      align-items: center;
+      margin-top: 96px;
+      padding: 34px;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: var(--card);
+    }
+    .author-mark {
+      width: 84px;
+      height: 84px;
+      display: grid;
+      place-items: center;
+      border-radius: 24px;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--serif);
+      font-size: 40px;
+      line-height: 1;
+    }
+    .author h2 {
+      margin-bottom: 8px;
+      font-family: var(--serif);
+      font-size: 24px;
+      font-weight: 500;
+      letter-spacing: -.02em;
+    }
+    .author p { max-width: 620px; color: var(--muted); font-size: 14px; line-height: 1.9; }
+    .author-links { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+
+    /* ---------- footer ---------- */
+
+    .site-foot {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 44px;
+      padding: 30px 0 42px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .06em;
+      line-height: 1.9;
+      text-transform: uppercase;
+    }
+
+    /* ---------- motion ---------- */
+
+    .js .reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+    .js .reveal.is-visible { opacity: 1; transform: none; }
+
+    :focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    /* ---------- responsive ---------- */
+
+    @media (max-width: 1080px) {
+      .features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .feature--wide { grid-column: span 2; }
+      .feature--full { grid-column: span 2; }
+      .scales { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .notes { grid-template-columns: 1fr; }
+      .gal { grid-template-columns: 1fr 1fr; }
+      .gal figure:first-child { grid-column: span 2; }
+    }
+
+    @media (max-width: 980px) {
+      .hero { padding-top: 60px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 44px; }
+      .hero-visual { max-width: 640px; }
+      .sec-head { grid-template-columns: 1fr; gap: 16px; align-items: start; }
+      .arch { grid-template-columns: 1fr; gap: 34px; }
+      .run { grid-template-columns: 1fr; gap: 26px; }
+      .steps { grid-template-columns: 1fr 1fr; gap: 26px 24px; }
+      .author { grid-template-columns: 84px minmax(0, 1fr); }
+      .author-links { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; }
+    }
+
+    @media (max-width: 860px) {
+      .head-inner {
+        flex-wrap: wrap;
+        padding: 10px 0;
+        row-gap: 4px;
+      }
+      .head-nav {
+        order: 3;
+        width: 100%;
+        margin-left: 0;
+        gap: 18px;
+        padding-bottom: 2px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .head-nav::-webkit-scrollbar { display: none; }
+      .head-actions { margin-left: auto; }
+    }
+
+    @media (max-width: 720px) {
+      .wrap { width: calc(100% - 32px); }
+      .brand small { display: none; }
+      .head-inner { min-height: 60px; }
+      .hero { padding-top: 46px; }
+      section[id], .band[id] { scroll-margin-top: 112px; }
+      .hero h1 { font-size: clamp(36px, 11.6vw, 58px); }
+      .hero-lead { font-size: 15px; margin-top: 20px; }
+      .hero-actions .btn { flex: 1; min-width: 140px; }
+      .hero-meta { margin-top: 22px; }
+      .hero-badge { left: 8px; bottom: 12px; }
+      .strip-inner { grid-template-columns: 1fr 1fr; }
+      .stat { padding: 20px 0; }
+      .stat + .stat { padding-left: 0; border-left: 0; }
+      .stat:nth-child(even) { padding-left: 18px; border-left: 1px solid var(--line); }
+      .stat:nth-child(n + 3) { border-top: 1px solid var(--line); }
+      .stat b { font-size: 30px; }
+      .section { padding-top: 72px; }
+      .features { grid-template-columns: 1fr; }
+      .feature--wide, .feature--full { grid-column: auto; }
+      .feature--full { flex-direction: column; align-items: flex-start; gap: 18px; }
+      .feature { padding: 24px; }
+      .gal { grid-template-columns: 1fr; }
+      .gal figure:first-child { grid-column: auto; }
+      .scales { grid-template-columns: 1fr 1fr; }
+      .scale { min-height: 136px; padding: 18px 14px; }
+      .band { margin-top: 72px; padding: 62px 0; }
+      .steps { grid-template-columns: 1fr; gap: 22px; }
+      .arch { gap: 28px; }
+      .layer { align-items: flex-start; }
+      .notes { margin-top: 34px; }
+      .author { margin-top: 72px; padding: 24px; grid-template-columns: 1fr; gap: 18px; }
+      .author-mark { width: 64px; height: 64px; border-radius: 18px; font-size: 30px; }
+      .site-foot { margin-top: 34px; }
+    }
+
+    @media (max-width: 380px) {
+      .head-nav { gap: 14px; font-size: 13px; }
+      .btn--sm { padding: 0 14px; }
+      .code { padding: 18px; }
+      .scales { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+      .js .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">跳到主要内容</a>
+
+  <header class="site-head">
+    <div class="wrap head-inner">
+      <a class="brand" href="#top" aria-label="心屿 PsyCare 首页">
+        <span class="brand-mark">屿</span>
+        <span>
+          心屿 PsyCare
+          <small>Mental health platform</small>
+        </span>
+      </a>
+      <nav class="head-nav" aria-label="主导航">
+        <a href="#features">功能</a>
+        <a href="#views">界面</a>
+        <a href="#scales">量表</a>
+        <a href="#privacy">隐私</a>
+        <a href="#arch">架构</a>
+        <a href="#author">作者</a>
+      </nav>
+      <div class="head-actions">
+        <a class="btn btn--ghost btn--sm" href="../me/">作者主页</a>
+        <a class="btn btn--sm" href="../">在线体验</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap" id="top">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">毕业设计 · 高校心理健康自助平台</p>
+          <h1>把心事，<br>安放在<br><em>安全的地方</em>。</h1>
+          <p class="hero-lead">
+            心屿是一个面向高校学生的心理自助平台。匿名测评、在线咨询、树洞倾诉、资源推荐与群体看板被放进同一条隐私链路：
+            敏感字段加密落库，自由文本在保存前清洗，统计结果按 k-匿名聚合。AI 助手先脱敏、再检索、后生成。
+          </p>
+          <div class="hero-actions">
+            <a class="btn" href="../">打开在线 Demo</a>
+            <a class="btn btn--ghost" href="#features">看看它怎么工作</a>
+          </div>
+          <p class="hero-note">可交互静态版 · 测评会真实计分 · 数据只保存在你的浏览器</p>
+          <p class="hero-meta">
+            <span>SPRING BOOT 3.3.5</span>
+            <span>VUE 3</span>
+            <span>MYSQL 8</span>
+            <span>BGE-M3 + MILVUS</span>
+          </p>
+        </div>
+        <div class="hero-visual">
+          <div class="browser">
+            <div class="browser-bar" aria-hidden="true">
+              <i></i><i></i><i></i>
+              <span>psycare.local / landing</span>
+            </div>
+            <img src="../assets/psycare-home.webp" width="1400" height="1652" alt="心屿 PsyCare 公共门户首页截图" fetchpriority="high">
+          </div>
+          <span class="hero-badge">本地演示环境截图</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="strip">
+      <div class="wrap strip-inner">
+        <div class="stat"><b>10</b><span>套标准化量表</span></div>
+        <div class="stat"><b>102</b><span>个检索切片 · 14 篇原创资料</span></div>
+        <div class="stat"><b>21</b><span>条计分边界用例</span></div>
+        <div class="stat"><b>5</b><span>人 k-匿名聚合阈值</span></div>
+      </div>
+    </div>
+
+    <section class="section wrap" id="features">
+      <div class="sec-head">
+        <h2 class="reveal"><small>01 / Features</small>一个平台，<br>四个入口</h2>
+        <p class="sec-lead reveal">
+          学生自助、匿名表达、咨询连接与群体洞察，共用同一套账号、隐私与内容体系。
+          下面这些能力都在本地跑通过，不是概念图。
+        </p>
+      </div>
+
+      <div class="features">
+        <article class="feature feature--wide reveal">
+          <span class="feature-index">01 / ASSESSMENT</span>
+          <h3>匿名测评与报告生成</h3>
+          <p>
+            10 套量表覆盖抑郁、焦虑、压力、自尊、孤独、心理韧性、睡眠与生活满意度。
+            计分器支持反向题、SDS / SAS 标准分（×1.25）与各量表特异的分级阈值，
+            提交后生成总分、维度得分、严重程度、危机提示与可执行建议。
+          </p>
+          <ul>
+            <li>匿名模式不写 user_id，只返回 AN-XXXXXXXXXX 编号，凭编号可再次打开报告。</li>
+            <li>高风险结果自动进入预警队列；学生端保留历史报告与同量表趋势图。</li>
+          </ul>
+          <div class="flow" aria-label="测评流程">
+            <span>答题</span><span>计分</span><span>分级</span><span>报告</span><span>预警</span>
+          </div>
+        </article>
+
+        <article class="feature reveal">
+          <span class="feature-index">02 / AI ASSISTANT</span>
+          <h3>先脱敏的心理助手</h3>
+          <p>
+            问题先在服务端清洗，再交给检索与生成。回答只依据平台原创资料，
+            并附上可点开的来源；危机表达不进入模型。
+          </p>
+          <div class="flow" aria-label="AI 链路">
+            <span>脱敏</span><span>混合召回</span><span>精排</span><span>流式</span>
+          </div>
+        </article>
+
+        <article class="feature reveal">
+          <span class="feature-index">03 / COUNSELING</span>
+          <h3>在线咨询</h3>
+          <p>
+            咨询师主页、方向筛选与预约，确认后开启 WebSocket 实时会话。
+            消息在发送时打码，落库与广播的都是脱敏文本；已结束的会话自动转为只读。
+          </p>
+        </article>
+
+        <article class="feature reveal">
+          <span class="feature-index">04 / TREE HOLE</span>
+          <h3>匿名树洞</h3>
+          <p>
+            发布不记录账号，正文以 AES-256-GCM 加密存储，展示前自动脱敏；
+            识别到风险表达时，附带心理援助热线提示。
+          </p>
+        </article>
+
+        <article class="feature reveal">
+          <span class="feature-index">05 / INSIGHT</span>
+          <h3>推荐与群体看板</h3>
+          <p>
+            推荐以测评标签为主、浏览历史为辅，理由对用户可见。
+            看板只出聚合值：样本少于 5 人的分组合并为「其他（已聚合）」。
+          </p>
+        </article>
+
+        <article class="feature feature--full reveal">
+          <div class="feature-body">
+            <span class="feature-index">06 / ADMIN</span>
+            <h3>咨询师与管理员端</h3>
+            <p>
+              风险预警队列、资源上下架、树洞审核、用户与角色列表（昵称、手机、邮箱均为掩码），
+              以及 AI 知识库管理：上传 Markdown、查看切片、删除资料、重建索引。上传成功即可被助手检索，无需重启服务。
+            </p>
+          </div>
+          <div class="feature-aside tags" aria-label="管理端能力">
+            <span class="tag">预警队列</span>
+            <span class="tag">内容审核</span>
+            <span class="tag">知识库</span>
+            <span class="tag">掩码视图</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section wrap" id="views">
+      <div class="sec-head">
+        <h2 class="reveal"><small>02 / Screens</small>界面的样子</h2>
+        <p class="sec-lead reveal">
+          截图来自本地演示环境，数据由种子程序生成，不含任何真实用户信息。
+          学生空间与公开门户是两套入口，测评、报告与重测都在登录后的空间内完成。
+        </p>
+      </div>
+
+      <div class="gal">
+        <figure class="reveal">
+          <div class="shot">
+            <img src="../assets/psycare-assess.webp" width="1200" height="1944" alt="学生空间的心理测评列表：十套量表与开始测评入口" loading="lazy">
+          </div>
+          <figcaption>
+            <b>学生空间 · 心理测评</b>
+            <span>登录后从侧栏直接进入，十套量表、历史报告与重测都在同一个空间里。</span>
+          </figcaption>
+        </figure>
+        <figure class="reveal">
+          <div class="shot">
+            <img src="../assets/psycare-report.webp" width="1200" height="1113" alt="测评报告页：总分、标准分、维度与建议" loading="lazy">
+          </div>
+          <figcaption>
+            <b>测评报告</b>
+            <span>总分、标准分、分维度与分级建议；风险阳性时给出求助路径。</span>
+          </figcaption>
+        </figure>
+        <figure class="reveal">
+          <div class="shot">
+            <img src="../assets/psycare-assistant.webp" width="1200" height="833" alt="AI 心理助手：流式回答与参考资料来源" loading="lazy">
+          </div>
+          <figcaption>
+            <b>AI 心理助手</b>
+            <span>逐段回答、随时停止；只有真正被引用的资料才进入来源区。</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section wrap" id="scales">
+      <div class="sec-head">
+        <h2 class="reveal"><small>03 / Scales</small>十套量表，<br>一套计分器</h2>
+        <p class="sec-lead reveal">
+          不是把题目搬上来，而是把反向题、标准分、分级阈值和危机标记都写成可回归的规则。
+          每一次改动，都会用低分、高分与关键题阳性三类样本重新核对。
+        </p>
+      </div>
+
+      <div class="scales reveal">
+        <div class="scale"><b>PHQ-9</b><span class="scale-topic">抑郁体验</span><em>9 题</em><p>0–3 计分；第 9 题阳性直接标记危机</p></div>
+        <div class="scale"><b>GAD-7</b><span class="scale-topic">焦虑体验</span><em>7 题</em><p>0–3 计分，按总分分级</p></div>
+        <div class="scale"><b>SDS</b><span class="scale-topic">抑郁自评</span><em>20 题</em><p>10 道反向题，标准分 ×1.25</p></div>
+        <div class="scale"><b>SAS</b><span class="scale-topic">焦虑自评</span><em>20 题</em><p>5 道反向题，标准分 ×1.25</p></div>
+        <div class="scale"><b>PSS-10</b><span class="scale-topic">知觉压力</span><em>10 题</em><p>4 道反向题，按总分分级</p></div>
+        <div class="scale"><b>SES</b><span class="scale-topic">自尊</span><em>10 题</em><p>Rosenberg 量表，5 道反向题</p></div>
+        <div class="scale"><b>UCLA-3</b><span class="scale-topic">孤独感</span><em>20 题</em><p>9 道反向题，按总分分级</p></div>
+        <div class="scale"><b>CD-RISC-10</b><span class="scale-topic">心理韧性</span><em>10 题</em><p>0–4 计分，分数越高韧性越强</p></div>
+        <div class="scale"><b>ISI</b><span class="scale-topic">失眠严重程度</span><em>7 题</em><p>0–4 计分，按总分分级</p></div>
+        <div class="scale"><b>SWLS</b><span class="scale-topic">生活满意度</span><em>5 题</em><p>1–7 计分，五个条目求和</p></div>
+      </div>
+
+      <p class="callout reveal">
+        <b>怎么验证的：</b>
+        一个 Python 脚本直接调用计分接口，逐项核对总分、标准分、严重程度、风险等级与危机标记，
+        覆盖 10 套量表的 21 条边界用例；学生端的答题、报告与移动端布局另有 12 项端到端检查。
+      </p>
+    </section>
+
+    <section class="band" id="privacy">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2 class="reveal"><small>04 / Privacy by design</small>隐私不是最后<br>补上的功能</h2>
+          <p class="sec-lead reveal">
+            从字段、序列化、日志到统计聚合，每一层都假设「数据会泄露一次」，
+            然后提前把损失压到最小。这是整个项目的主线，也是最难在答辩里讲清楚的部分。
+          </p>
+        </div>
+
+        <div class="steps">
+          <div class="step reveal">
+            <em>01</em>
+            <h3>采集即清洗</h3>
+            <p>手机号、身份证、银行卡与邮箱在保存前打码；运行日志再由 Logback 转换器打一次，避免从日志侧泄漏。</p>
+          </div>
+          <div class="step reveal">
+            <em>02</em>
+            <h3>字段级加密</h3>
+            <p>手机号与邮箱用 AES-256-GCM（随机 IV、密文含认证标签）落库，同时保留掩码列，列表页不接触明文。</p>
+          </div>
+          <div class="step reveal">
+            <em>03</em>
+            <h3>输出即掩码</h3>
+            <p>Jackson 自定义序列化器配合 @Sensitive，管理员看到的昵称是「望*」，接口层不返回联系方式。</p>
+          </div>
+          <div class="step reveal">
+            <em>04</em>
+            <h3>聚合后再发布</h3>
+            <p>分组人数少于 k（默认 5）合并为「其他（已聚合）」；预警列表只显示掩码昵称或匿名编号。</p>
+          </div>
+        </div>
+
+        <p class="band-note">
+          演示环境内置了默认密钥，方便本地一键运行；正式部署应通过环境变量注入 JWT_SECRET 与 APP_CRYPTO_KEY，
+          并对密钥做托管与轮换。更换加密密钥会导致历史密文无法解密，这一点也写进了文档。
+        </p>
+      </div>
+    </section>
+
+    <section class="section wrap" id="arch">
+      <div class="sec-head">
+        <h2 class="reveal"><small>05 / Architecture</small>一条先脱敏、<br>再检索的链路</h2>
+        <p class="sec-lead reveal">
+          Spring 是脱敏的可信边界：Python 服务只会收到清洗后的文本，模型看不到手机号。
+          前端气泡里的掩码只是预览，真正的判定在服务端。
+        </p>
+      </div>
+
+      <div class="arch">
+        <div class="reveal">
+          <div class="layer">
+            <div>
+              <b>浏览器</b>
+              <small>Vue 3 SPA · 公共门户 / 学生空间 / 咨询师工作台 / 管理后台</small>
+            </div>
+            <span class="mono">Vue 3</span>
+          </div>
+          <div class="arrow"><span>axios /api · WebSocket /ws</span></div>
+
+          <div class="layer layer--main">
+            <div>
+              <b>Spring Boot</b>
+              <small>JWT 鉴权 · 角色校验 · 字段加密与掩码 · SSE 代理 · MySQL 8 持久化</small>
+            </div>
+            <span class="mono">:8080</span>
+          </div>
+          <div class="arrow"><span>只传脱敏文本 · SSE 八类事件</span></div>
+
+          <div class="layer">
+            <div>
+              <b>Python · FastAPI</b>
+              <small>危机规则 → BGE-M3 混合召回 → qwen3-rerank → qwen-flash 流式</small>
+            </div>
+            <span class="mono">:8002</span>
+          </div>
+          <div class="arrow"><span>精排后取前 4 段切片</span></div>
+
+          <div class="layer layer--dark">
+            <div>
+              <b>Milvus</b>
+              <small>psy_chunks · 14 篇原创资料 / 102 个切片</small>
+            </div>
+            <span class="mono">vector</span>
+          </div>
+        </div>
+
+        <div class="arch-notes reveal">
+          <div class="arch-note">
+            <b>危机表达不进入模型</b>
+            <p>自伤 / 伤人相关表达由规则直接拦截，返回 12356、120、110 与校内求助路径，不经过检索，也不交给生成。</p>
+          </div>
+          <div class="arch-note">
+            <b>用药问题只谈沟通</b>
+            <p>不给药名、剂量、停药或换药方案，只提供如何与医生沟通、如何记录副作用。边界写在提示词里，也写在资料里。</p>
+          </div>
+          <div class="arch-note">
+            <b>流式回答也要能收尾</b>
+            <p>用户点「停下」时，已生成的部分同样保存，历史里不会出现半条空消息；网络抖动且尚未吐字时自动重试，最多 3 次。</p>
+            <div class="events" aria-label="SSE 事件">
+              <code>conversation</code><code>session</code><code>privacy</code><code>status</code>
+              <code>sources</code><code>delta</code><code>final</code><code>error</code>
+            </div>
+          </div>
+          <div class="arch-note">
+            <b>引用必须可追溯</b>
+            <p>只有回答里真正点名的 doc_id 才映射成来源；同一个 doc_id 同时用于向量库、平台资源与来源链接，改一篇资料不用改三处。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <article class="note-card reveal">
+          <em>01</em>
+          <h3>计分做成数据，不是 if-else</h3>
+          <p>量表、题目、反向标记、分级阈值都存在题库里，计分器只读规则。新增量表不用改服务层代码。</p>
+        </article>
+        <article class="note-card reveal">
+          <em>02</em>
+          <h3>匿名也要能回来</h3>
+          <p>匿名测评不落 user_id，只生成随机编号。编号是唯一的找回凭据，报告与历史都不会反查身份。</p>
+        </article>
+        <article class="note-card reveal">
+          <em>03</em>
+          <h3>空数据也是数据</h3>
+          <p>看板在样本不足时不画「假趋势」：低于 k 的分组直接合并，避免小样本反推出具体的人。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section wrap" id="run">
+      <div class="sec-head">
+        <h2 class="reveal"><small>06 / Run locally</small>在本地跑起来</h2>
+        <p class="sec-lead reveal">
+          平台不在线开放登录，这个页面只做展示。完整代码在本地仓库，按下面三步即可启动；
+          AI 助手是可选依赖，没启动时测评、咨询、树洞与看板都不受影响。
+        </p>
+      </div>
+
+      <div class="run">
+        <div class="code reveal">
+          <pre><code><span class="c"># 1) 后端：JDK 17 + MySQL 8</span>
+mvn -DskipTests package
+java -jar target/psycare-1.0.0.jar
+
+<span class="c"># 2) 前端：Node 20</span>
+cd frontend
+npm install
+npm run dev
+<span class="c"># → http://localhost:5173</span>
+
+<span class="c"># 3) AI 助手（可选）</span>
+<span class="c">#    另起独立的 FastAPI 检索服务，端口 8002</span></code></pre>
+        </div>
+
+        <dl class="run-side reveal">
+          <div class="run-item">
+            <dt>Database</dt>
+            <dd>连接串带 createDatabaseIfNotExist，首次启动自动建表；种子程序写入演示数据，量表库幂等补齐。</dd>
+          </div>
+          <div class="run-item">
+            <dt>Accounts</dt>
+            <dd>学生、咨询师、管理员三类演示账号，角色权限由 JWT + BCrypt 控制，学生只能读自己的报告与会话。</dd>
+          </div>
+          <div class="run-item">
+            <dt>AI service</dt>
+            <dd>Python 3.12 + FastAPI + Milvus；问题先脱敏再检索，回答按 SSE 流式返回，来源映射回平台资源。</dd>
+          </div>
+          <div class="run-item">
+            <dt>Notes</dt>
+            <dd>项目路径含中文时，Maven 的 spring-boot:run 可能报找不到主类，用 package + java -jar 即可绕过。</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="wrap" id="author">
+      <div class="author reveal">
+        <span class="author-mark">屿</span>
+        <div>
+          <h2>关于这个项目</h2>
+          <p>
+            心屿是我的毕业设计。目标不是做一个「功能很多」的平台，而是把心理健康场景里最难讲清楚的一环——隐私——
+            做成可以演示、可以验证的链路：从数据库字段、接口序列化到统计聚合，一路贯穿。
+            如果你也在做类似方向，欢迎交流。
+          </p>
+        </div>
+        <div class="author-links">
+          <a class="btn btn--sm" href="../">打开在线 Demo</a>
+          <a class="btn btn--ghost btn--sm" href="../me/">作者主页</a>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/2755715424-byte">GitHub</a>
+        </div>
+      </div>
+
+      <footer class="site-foot">
+        <span>© 2026 心屿 PsyCare · 毕业设计演示项目</span>
+        <span>静态展示页 · 数据由种子程序生成 · 不含真实用户信息</span>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      var items = document.querySelectorAll('.reveal')
+      if (!('IntersectionObserver' in window) || reduce) {
+        items.forEach(function (el) { el.classList.add('is-visible') })
+      } else {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible')
+              io.unobserve(entry.target)
+            }
+          })
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px' })
+        items.forEach(function (el) { io.observe(el) })
+      }
+
+      var head = document.querySelector('.site-head')
+      var onScroll = function () { head.classList.toggle('is-scrolled', window.scrollY > 8) }
+      onScroll()
+      window.addEventListener('scroll', onScroll, { passive: true })
+    })()
+  </script>
+</body>
+</html>
