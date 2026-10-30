@@ -1,0 +1,1290 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elnera · Python 开发者与 RAG 实践者</title>
+  <meta name="description" content="Elnera 的个人主页：Python、RAG、Agent 与后端工程。这里记录我正在做的项目、技术关注点和联系方式。">
+  <meta name="theme-color" content="#f3efe4">
+  <meta property="og:title" content="Elnera · Python 开发者与 RAG 实践者">
+  <meta property="og:description" content="把复杂的技术，做得简单好用。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2317251f'/%3E%3Ctext x='32' y='45' text-anchor='middle' font-size='38' font-family='Georgia,serif' fill='%23f3efe4'%3EE%3C/text%3E%3C/svg%3E">
+  <script>document.documentElement.classList.add('js')</script>
+  <style>
+    :root {
+      --paper: #f3efe4;
+      --paper-deep: #e9e2d2;
+      --card: #fbf9f3;
+      --ink: #17251f;
+      --muted: #68736c;
+      --line: rgba(23, 37, 31, .14);
+      --line-strong: rgba(23, 37, 31, .26);
+      --teal: #2f6f64;
+      --teal-deep: #17332b;
+      --teal-soft: #dcebe4;
+      --coral: #c7684a;
+      --serif: "Songti SC", "Noto Serif SC", "Source Han Serif SC", STSong, SimSun, serif;
+      --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --radius: 24px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 8% -5%, rgba(47, 111, 100, .12), transparent 48%),
+        radial-gradient(ellipse at 96% 14%, rgba(199, 104, 74, .09), transparent 42%),
+        var(--paper);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: var(--teal); color: var(--card); }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { font: inherit; }
+
+    .skip {
+      position: fixed;
+      left: 16px;
+      top: -60px;
+      z-index: 100;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--card);
+      transition: top .2s ease;
+    }
+    .skip:focus { top: 16px; }
+
+    .wrap {
+      width: min(var(--max), calc(100% - 48px));
+      margin: 0 auto;
+    }
+
+    .mono {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .site-head {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 1px solid var(--line);
+      background: rgba(243, 239, 228, .82);
+      backdrop-filter: blur(18px);
+    }
+
+    .head-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 650;
+      letter-spacing: -.02em;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--serif);
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .brand small {
+      display: block;
+      margin-top: -3px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .head-nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 14px;
+    }
+
+    .head-nav a {
+      position: relative;
+      color: var(--muted);
+      transition: color .2s ease;
+    }
+    .head-nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      width: 0;
+      height: 1px;
+      background: var(--teal);
+      transition: width .25s ease;
+    }
+    .head-nav a:hover { color: var(--ink); }
+    .head-nav a:hover::after { width: 100%; }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .status::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 0 4px rgba(47, 111, 100, .12);
+    }
+
+    .hero {
+      padding: 86px 0 54px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.18fr) minmax(300px, .82fr);
+      gap: 56px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+      color: var(--teal);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 26px;
+      height: 1px;
+      background: currentColor;
+    }
+
+    h1, h2, h3, h4, p { margin: 0; }
+
+    .hero h1 {
+      max-width: 760px;
+      font-family: var(--serif);
+      font-size: clamp(52px, 7.4vw, 96px);
+      font-weight: 500;
+      line-height: .98;
+      letter-spacing: -.055em;
+    }
+
+    .hero h1 em {
+      color: var(--teal);
+      font-style: normal;
+    }
+
+    .hero-lead {
+      max-width: 560px;
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.9;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 34px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 48px;
+      padding: 0 22px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--card);
+      font-size: 14px;
+      transition: transform .2s ease, background .2s ease, color .2s ease;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+    .btn--ghost {
+      background: transparent;
+      border-color: var(--line-strong);
+      color: var(--ink);
+    }
+    .btn--ghost:hover { background: rgba(23, 37, 31, .05); }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 22px;
+      margin-top: 34px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .hero-meta span { display: inline-flex; align-items: center; gap: 8px; }
+    .hero-meta span::before {
+      content: "";
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--coral);
+    }
+
+    .now-card {
+      position: relative;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, .5), transparent 55%),
+        var(--card);
+      box-shadow: 0 24px 60px -36px rgba(23, 37, 31, .45);
+      transform: rotate(1.2deg);
+      overflow: hidden;
+    }
+
+    .now-card::after {
+      content: "E";
+      position: absolute;
+      right: 8px;
+      bottom: -54px;
+      color: rgba(47, 111, 100, .07);
+      font-family: var(--serif);
+      font-size: 210px;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .now-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .now-head strong {
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: 19px;
+      font-weight: 500;
+      letter-spacing: -.02em;
+    }
+
+    .now-rows { position: relative; z-index: 1; }
+
+    .now-row {
+      display: grid;
+      grid-template-columns: 62px 1fr;
+      gap: 14px;
+      padding: 17px 0;
+      border-bottom: 1px dashed var(--line);
+    }
+    .now-row:last-child { border-bottom: 0; padding-bottom: 2px; }
+
+    .now-row dt {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .now-row dd {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .now-row dd small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .now-foot {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: 22px;
+      color: var(--teal);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .now-foot::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--teal);
+      animation: breathe 2.6s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(47, 111, 100, .22); }
+      50% { box-shadow: 0 0 0 6px rgba(47, 111, 100, 0); }
+    }
+
+    .stack-band {
+      margin-top: 32px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .stack-track {
+      display: flex;
+      width: max-content;
+      animation: marquee 32s linear infinite;
+    }
+
+    .stack-track span {
+      display: inline-flex;
+      align-items: center;
+      gap: 18px;
+      padding: 15px 0;
+      white-space: nowrap;
+    }
+    .stack-track span::after {
+      content: "·";
+      color: var(--coral);
+    }
+
+    .stack-track span + span { margin-left: 18px; }
+
+    @keyframes marquee {
+      to { transform: translateX(-50%); }
+    }
+
+    .section { padding: 92px 0 0; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, .7fr) minmax(0, 1.3fr);
+      gap: 36px;
+      align-items: end;
+      margin-bottom: 34px;
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(34px, 4.2vw, 54px);
+      font-weight: 500;
+      line-height: 1.08;
+      letter-spacing: -.04em;
+    }
+
+    .section-title small {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--teal);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .section-note {
+      max-width: 470px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .project-feature {
+      display: grid;
+      grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+      gap: 42px;
+      padding: 34px;
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      background: var(--card);
+    }
+
+    .project-copy {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 8px 2px;
+    }
+
+    .project-index {
+      color: var(--coral);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .project-copy h3 {
+      margin-top: 14px;
+      font-family: var(--serif);
+      font-size: clamp(30px, 3.6vw, 46px);
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: -.04em;
+    }
+
+    .project-sub {
+      margin-top: 9px;
+      color: var(--teal);
+      font-size: 14px;
+    }
+
+    .project-story {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.85;
+    }
+
+    .project-points {
+      display: grid;
+      gap: 9px;
+      margin: 22px 0 0;
+      padding: 0;
+      list-style: none;
+      font-size: 13px;
+    }
+
+    .project-points li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 8px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .project-points li::before {
+      content: "↳";
+      color: var(--teal);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 24px;
+    }
+
+    .tag {
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .project-visual {
+      position: relative;
+      align-self: center;
+    }
+
+    .browser {
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      border-radius: 18px;
+      background: var(--paper);
+      box-shadow: 0 28px 60px -38px rgba(23, 37, 31, .55);
+      transform: rotate(-1deg);
+      transition: transform .4s ease;
+    }
+    .project-feature:hover .browser { transform: rotate(0) translateY(-4px); }
+
+    .browser-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 34px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, .55);
+    }
+
+    .browser-bar i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--line-strong);
+    }
+    .browser-bar i:nth-child(1) { background: #d98b72; }
+    .browser-bar i:nth-child(2) { background: #d9bd72; }
+    .browser-bar i:nth-child(3) { background: #8fba9d; }
+
+    .browser-bar span {
+      margin-left: auto;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .04em;
+    }
+
+    .browser img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3.2;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .shot-badge {
+      position: absolute;
+      right: -10px;
+      bottom: 22px;
+      display: grid;
+      gap: 2px;
+      padding: 13px 16px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--card);
+      box-shadow: 0 18px 40px -24px rgba(23, 37, 31, .5);
+      transform: rotate(2deg);
+    }
+    .shot-badge strong {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 1;
+    }
+    .shot-badge span {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+      margin-top: 22px;
+    }
+
+    .project-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 430px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--card);
+      overflow: hidden;
+    }
+
+    .project-card h3 {
+      margin-top: 13px;
+      font-family: var(--serif);
+      font-size: 30px;
+      font-weight: 500;
+      line-height: 1.15;
+      letter-spacing: -.035em;
+    }
+
+    .project-card p {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .project-card .tags { margin-top: auto; padding-top: 22px; }
+
+    .card-dark {
+      border-color: rgba(255, 255, 255, .12);
+      background:
+        radial-gradient(ellipse at 90% 0%, rgba(122, 181, 159, .18), transparent 50%),
+        var(--teal-deep);
+      color: var(--paper);
+    }
+    .card-dark p { color: rgba(243, 239, 228, .66); }
+    .card-dark .tag { border-color: rgba(243, 239, 228, .18); color: rgba(243, 239, 228, .7); }
+    .card-dark .project-index { color: #e0a087; }
+
+    .pipeline {
+      display: grid;
+      gap: 7px;
+      margin-top: 24px;
+    }
+
+    .pipe-node {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 9px 12px;
+      border: 1px solid rgba(243, 239, 228, .14);
+      border-radius: 9px;
+      background: rgba(243, 239, 228, .045);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .04em;
+    }
+    .pipe-node em {
+      color: #9ac7b4;
+      font-style: normal;
+      font-size: 8px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .chat-mock {
+      display: grid;
+      gap: 9px;
+      margin-top: 24px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #eeeadf;
+    }
+
+    .bubble {
+      max-width: 92%;
+      padding: 9px 12px;
+      border-radius: 11px;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+    .bubble--me {
+      justify-self: end;
+      border-bottom-right-radius: 3px;
+      background: var(--teal);
+      color: var(--card);
+    }
+    .bubble--bot {
+      justify-self: start;
+      border: 1px solid var(--line);
+      border-bottom-left-radius: 3px;
+      background: var(--card);
+      color: var(--muted);
+    }
+    .bubble--bot b { color: var(--ink); font-weight: 600; }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+      gap: 64px;
+      align-items: start;
+    }
+
+    .about-lead {
+      font-family: var(--serif);
+      font-size: clamp(27px, 3.2vw, 40px);
+      font-weight: 500;
+      line-height: 1.35;
+      letter-spacing: -.03em;
+    }
+    .about-lead em { color: var(--teal); font-style: normal; }
+
+    .about-copy {
+      display: grid;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.9;
+    }
+    .about-copy strong { color: var(--ink); font-weight: 600; }
+
+    .principles {
+      display: grid;
+      gap: 0;
+      margin: 44px 0 0;
+      padding: 0;
+      list-style: none;
+      border-top: 1px solid var(--line);
+    }
+
+    .principle {
+      display: grid;
+      grid-template-columns: 46px 1fr;
+      gap: 18px;
+      padding: 22px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .principle > span {
+      color: var(--coral);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      padding-top: 4px;
+    }
+
+    .principle h3 {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+    }
+    .principle p {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .skill-card {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(251, 249, 243, .55);
+    }
+
+    .skill-card h3 {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .skill-card h3 span {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 8px;
+      font-weight: 400;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .skill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 18px;
+    }
+    .skill-list span {
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .03em;
+    }
+
+    .contact {
+      margin-top: 92px;
+      padding: 58px 54px;
+      border-radius: 34px;
+      background:
+        radial-gradient(ellipse at 86% 8%, rgba(122, 181, 159, .22), transparent 45%),
+        var(--teal-deep);
+      color: var(--paper);
+    }
+
+    .contact-inner {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 40px;
+    }
+
+    .contact .eyebrow { color: #9ac7b4; margin-bottom: 18px; }
+    .contact h2 {
+      font-family: var(--serif);
+      font-size: clamp(40px, 5.6vw, 72px);
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -.05em;
+    }
+    .contact p {
+      max-width: 440px;
+      margin-top: 18px;
+      color: rgba(243, 239, 228, .66);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .contact-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 13px;
+      flex-shrink: 0;
+    }
+
+    .btn--light {
+      border-color: var(--paper);
+      background: var(--paper);
+      color: var(--ink);
+    }
+    .btn--outline-light {
+      border-color: rgba(243, 239, 228, .28);
+      background: transparent;
+      color: var(--paper);
+    }
+    .btn--outline-light:hover { background: rgba(243, 239, 228, .08); }
+
+    .contact-note {
+      color: rgba(243, 239, 228, .46);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .site-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 30px 0 38px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .site-foot a { color: var(--ink); }
+    .site-foot a:hover { color: var(--teal); }
+
+    .reveal {
+      transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1);
+    }
+    .js .reveal { opacity: 0; transform: translateY(18px); }
+    .js .reveal.is-visible { opacity: 1; transform: none; }
+
+    @media (max-width: 980px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 46px; }
+      .now-card { max-width: 520px; transform: none; }
+      .section-head { grid-template-columns: 1fr; gap: 14px; align-items: start; }
+      .project-feature { grid-template-columns: 1fr; gap: 30px; }
+      .project-visual { order: -1; }
+      .about-grid { grid-template-columns: 1fr; gap: 28px; }
+      .skills-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .contact-inner { flex-direction: column; align-items: flex-start; }
+      .contact-actions { align-items: flex-start; }
+    }
+
+    @media (max-width: 720px) {
+      .wrap { width: calc(100% - 34px); }
+      .head-inner { min-height: 64px; }
+      .brand small { display: none; }
+      .head-nav { gap: 15px; font-size: 13px; }
+      .status { display: none; }
+      .hero { padding-top: 58px; }
+      .hero h1 { font-size: clamp(38px, 12.5vw, 62px); }
+      .hero-lead { margin-top: 22px; font-size: 15px; }
+      .hero-actions .btn { flex: 1; min-width: 135px; }
+      .section { padding-top: 72px; }
+      .project-feature { padding: 18px; border-radius: 24px; }
+      .project-copy { padding: 2px 4px 6px; }
+      .project-grid { grid-template-columns: 1fr; }
+      .project-card { min-height: 0; padding: 24px; }
+      .shot-badge { right: 4px; bottom: 10px; padding: 10px 12px; }
+      .shot-badge strong { font-size: 16px; }
+      .about-grid { gap: 22px; }
+      .principle { grid-template-columns: 32px 1fr; gap: 10px; }
+      .skills-grid { grid-template-columns: 1fr; }
+      .contact { margin-top: 72px; padding: 36px 24px; border-radius: 26px; }
+      .contact-actions { width: 100%; }
+      .contact-actions .btn { width: 100%; }
+      .site-foot { flex-direction: column; align-items: flex-start; gap: 8px; padding-bottom: 32px; }
+    }
+
+    @media (max-width: 560px) {
+      .head-inner { flex-wrap: wrap; padding: 8px 0; row-gap: 4px; }
+      .head-nav {
+        order: 3;
+        width: 100%;
+        margin-left: 0;
+        gap: 16px;
+        padding-bottom: 2px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .head-nav::-webkit-scrollbar { display: none; }
+      .head-nav a { white-space: nowrap; }
+      .hero-actions { flex-direction: column; align-items: stretch; }
+      .hero-actions .btn { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+      .js .reveal { opacity: 1; transform: none; }
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">跳到主要内容</a>
+
+  <header class="site-head">
+    <div class="wrap head-inner">
+      <a class="brand" href="#top" aria-label="回到顶部">
+        <span class="brand-mark">E</span>
+        <span>
+          Elnera
+          <small>Python · RAG · Backend</small>
+        </span>
+      </a>
+      <nav class="head-nav" aria-label="主导航">
+        <a href="../">心屿 PsyCare</a>
+        <a href="#work">作品</a>
+        <a href="#about">关于</a>
+        <a href="#skills">技能</a>
+        <a href="#contact">联系</a>
+      </nav>
+      <span class="status">开放交流</span>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap" id="top">
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow">Personal site · 2026</span>
+          <h1>把复杂的技术，<br><em>做得简单好用。</em></h1>
+          <p class="hero-lead">
+            我是 Elnera，一名关注 Python、RAG 与后端工程的开发者。
+            我喜欢把检索、智能体和工作流拆开看清楚，再重新拼成别人愿意使用的产品。
+          </p>
+          <div class="hero-actions">
+            <a class="btn" href="#work">看看我在做什么 <span aria-hidden="true">↓</span></a>
+            <a class="btn btn--ghost" href="https://github.com/2755715424-byte" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="hero-meta" aria-label="关键词">
+            <span>Python / Java</span>
+            <span>RAG / Agent</span>
+            <span>Vue / Spring Boot</span>
+          </div>
+        </div>
+
+        <aside class="now-card reveal" aria-label="近况">
+          <div class="now-head">
+            <strong>现在</strong>
+            <span class="mono">Now / 2026</span>
+          </div>
+          <dl class="now-rows">
+            <div class="now-row">
+              <dt>在做</dt>
+              <dd>心屿 PsyCare<small>把隐私保护做进链路的心理健康自助平台</small></dd>
+            </div>
+            <div class="now-row">
+              <dt>在学</dt>
+              <dd>Agent 工作流与 RAG 评测<small>让检索结果更稳，让回答更有出处</small></dd>
+            </div>
+            <div class="now-row">
+              <dt>关注</dt>
+              <dd>后端工程 / AI 应用<small>从接口、数据到模型调用的完整链路</small></dd>
+            </div>
+          </dl>
+          <div class="now-foot">保持好奇，持续交付</div>
+        </aside>
+      </div>
+
+      <div class="stack-band" aria-label="常用技术">
+        <div class="stack-track">
+          <span>Python</span><span>FastAPI</span><span>LangGraph</span><span>Milvus</span><span>BGE-M3</span><span>Spring Boot</span><span>Vue 3</span><span>MySQL</span><span>WebSocket</span><span>Git</span>
+          <span aria-hidden="true">Python</span><span aria-hidden="true">FastAPI</span><span aria-hidden="true">LangGraph</span><span aria-hidden="true">Milvus</span><span aria-hidden="true">BGE-M3</span><span aria-hidden="true">Spring Boot</span><span aria-hidden="true">Vue 3</span><span aria-hidden="true">MySQL</span><span aria-hidden="true">WebSocket</span><span aria-hidden="true">Git</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="work">
+      <div class="section-head">
+        <h2 class="section-title"><small>Selected work</small>做过的东西</h2>
+        <p class="section-note">
+          比起堆功能，我更在意一条链路是否真的闭合：用户能不能完成、数据是否被保护、失败时是否有退路。
+          下面是我最近投入最多的三个方向。
+        </p>
+      </div>
+
+      <article class="project-feature reveal">
+        <div class="project-copy">
+          <span class="project-index">01 / 毕业设计</span>
+          <h3>心屿 PsyCare</h3>
+          <p class="project-sub">融合 Spring Boot 与数据脱敏的心理健康自助平台</p>
+          <p class="project-story">
+            面向高校学生的自助平台，把匿名测评、在线咨询、树洞倾诉、资源推荐与群体看板放进同一条隐私保护链路。
+            敏感字段加密落库，自由文本实时清洗，统计结果按 k-匿名聚合；AI 助手先脱敏、再检索、后生成。
+          </p>
+          <ul class="project-points">
+            <li>10 套标准化量表，支持反向计分、标准分、风险分级与匿名报告。</li>
+            <li>Spring Boot + Vue 3 + MySQL，WebSocket 实时咨询与 JWT 角色权限。</li>
+            <li>BGE-M3 + Milvus + qwen 系列模型，14 篇原创资料 / 102 个切片，回答带来源。</li>
+          </ul>
+          <div class="tags" aria-label="技术标签">
+            <span class="tag">Spring Boot</span>
+            <span class="tag">Vue 3</span>
+            <span class="tag">MySQL</span>
+            <span class="tag">Milvus</span>
+            <span class="tag">AES-GCM</span>
+          </div>
+        </div>
+        <div class="project-visual">
+          <div class="browser">
+            <div class="browser-bar" aria-hidden="true">
+              <i></i><i></i><i></i>
+              <span>psycare.local / landing</span>
+            </div>
+            <img src="../assets/psycare-home.webp" width="1400" height="1652" alt="心屿 PsyCare 首页截图" loading="lazy">
+          </div>
+          <div class="shot-badge" aria-hidden="true">
+            <strong>10 套</strong>
+            <span>assessment scales</span>
+          </div>
+        </div>
+      </article>
+
+      <div class="project-grid">
+        <article class="project-card card-dark reveal">
+          <span class="project-index">02 / RAG</span>
+          <h3>知识库问答</h3>
+          <p>
+            从语料清洗、切片、混合召回到重排与流式生成的一条完整链路。
+            关注的不只是“能答”，而是回答是否可追溯、边界是否清楚。
+          </p>
+          <div class="pipeline" aria-label="RAG 流程">
+            <div class="pipe-node"><span>01 问题脱敏</span><em>privacy</em></div>
+            <div class="pipe-node"><span>02 稠密 + 稀疏召回</span><em>hybrid</em></div>
+            <div class="pipe-node"><span>03 重排与截断</span><em>rerank</em></div>
+            <div class="pipe-node"><span>04 流式回答 + 来源</span><em>SSE</em></div>
+          </div>
+          <div class="tags">
+            <span class="tag">Python</span>
+            <span class="tag">FastAPI</span>
+            <span class="tag">LangGraph</span>
+            <span class="tag">Milvus</span>
+          </div>
+        </article>
+
+        <article class="project-card reveal">
+          <span class="project-index">03 / Bot</span>
+          <h3>QQ 智能体</h3>
+          <p>
+            基于 NapCat 的 QQ 机器人，把多轮对话、工具调用与知识库检索接进日常聊天。
+            重点是上下文管理、失败兜底，以及在群聊里保持克制。
+          </p>
+          <div class="chat-mock" aria-hidden="true">
+            <div class="bubble bubble--me">帮我看下这段报错，应该从哪查？</div>
+            <div class="bubble bubble--bot">
+              <b>先定位协议层。</b>把连接日志和请求体一起发我，我按时间线帮你缩小范围。
+            </div>
+            <div class="bubble bubble--me">好，晚点发你。</div>
+          </div>
+          <div class="tags">
+            <span class="tag">NapCat</span>
+            <span class="tag">LangGraph</span>
+            <span class="tag">RAG</span>
+            <span class="tag">WebSocket</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section wrap" id="about">
+      <div class="section-head">
+        <h2 class="section-title"><small>About</small>关于我</h2>
+      </div>
+      <div class="about-grid">
+        <p class="about-lead reveal">
+          我相信好的技术应该<em>安静地解决问题</em>，而不是把复杂度留给使用者。
+        </p>
+        <div class="about-copy reveal">
+          <p>
+            我习惯从“为什么做”开始，而不是从框架开始。拿到一个需求，先把它拆成用户路径、数据流和失败场景，
+            再决定用什么技术。做 PsyCare 时，隐私不是最后补上的功能，而是从数据库字段、接口序列化到统计聚合一路贯穿的约束。
+          </p>
+          <p>
+            我也喜欢把学习过程写下来：一个检索效果不好，是切片的问题、召回的问题，还是提示词的问题？
+            把变量控制住，一次次复现，直到能解释结果。对我来说，<strong>能讲清楚</strong>和<strong>能跑起来</strong>同样重要。
+          </p>
+          <p>
+            目前主要在 Python / Java 后端与 AI 应用方向持续实践，也愿意接触真实业务里的脏活累活。
+          </p>
+        </div>
+      </div>
+
+      <ol class="principles">
+        <li class="principle reveal">
+          <span>01</span>
+          <div>
+            <h3>先跑通，再打磨</h3>
+            <p>先让最小闭环成立，再谈架构和体验。能演示、能验证，比纸面上的完美更重要。</p>
+          </div>
+        </li>
+        <li class="principle reveal">
+          <span>02</span>
+          <div>
+            <h3>隐私不是附加项</h3>
+            <p>敏感数据在写入前加密、返回前掩码、统计前聚合。保护应该发生在链路上，而不是口号里。</p>
+          </div>
+        </li>
+        <li class="principle reveal">
+          <span>03</span>
+          <div>
+            <h3>让结果有出处</h3>
+            <p>无论是检索回答还是项目决策，都尽量留下可追溯的依据，而不是只给一个看起来正确的结论。</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="section wrap" id="skills">
+      <div class="section-head">
+        <h2 class="section-title"><small>Toolbox</small>常用工具</h2>
+        <p class="section-note">
+          不是熟练度进度条，只是我最近真实写过、调试过、踩过坑的东西。
+        </p>
+      </div>
+
+      <div class="skills-grid">
+        <div class="skill-card reveal">
+          <h3>语言 <span>Languages</span></h3>
+          <div class="skill-list">
+            <span>Python</span><span>Java</span><span>JavaScript</span><span>SQL</span>
+          </div>
+        </div>
+        <div class="skill-card reveal">
+          <h3>后端 <span>Backend</span></h3>
+          <div class="skill-list">
+            <span>FastAPI</span><span>Spring Boot</span><span>MySQL</span><span>WebSocket</span><span>JWT</span>
+          </div>
+        </div>
+        <div class="skill-card reveal">
+          <h3>AI 应用 <span>AI / RAG</span></h3>
+          <div class="skill-list">
+            <span>LangGraph</span><span>RAG</span><span>Milvus</span><span>BGE-M3</span><span>Prompt</span>
+          </div>
+        </div>
+        <div class="skill-card reveal">
+          <h3>前端与工具 <span>Frontend</span></h3>
+          <div class="skill-list">
+            <span>Vue 3</span><span>Vite</span><span>Element Plus</span><span>ECharts</span><span>Git</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact wrap reveal" id="contact">
+      <div class="contact-inner">
+        <div>
+          <span class="eyebrow">Say hello</span>
+          <h2>聊聊？</h2>
+          <p>
+            如果你在做知识库、智能体或校园产品，或者只是想交流一个技术问题，欢迎通过 GitHub 找到我。
+          </p>
+        </div>
+        <div class="contact-actions">
+          <a class="btn btn--light" href="https://github.com/2755715424-byte" target="_blank" rel="noreferrer">在 GitHub 见我 <span aria-hidden="true">↗</span></a>
+          <a class="btn btn--outline-light" href="#work">再看一遍作品 <span aria-hidden="true">↑</span></a>
+          <span class="contact-note">Usually replies within a few days</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap site-foot">
+    <span>© <span id="year">2026</span> Elnera · Personal site</span>
+    <span>Handwritten HTML / CSS · Hosted on GitHub Pages</span>
+    <a href="#top">回到顶部 ↑</a>
+  </footer>
+
+  <script>
+    (function () {
+      var year = document.getElementById('year')
+      if (year) year.textContent = String(new Date().getFullYear())
+
+      var items = document.querySelectorAll('.reveal')
+      if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        items.forEach(function (el) { el.classList.add('is-visible') })
+        return
+      }
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' })
+
+      items.forEach(function (el) { observer.observe(el) })
+    })()
+  </script>
+</body>
+</html>
